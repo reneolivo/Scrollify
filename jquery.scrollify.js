@@ -67,6 +67,7 @@
 		elements = [],
 		overflow = [],
 		index = 0,
+		previousIndex = 0,
 		currentIndex = 0,
 		interstitialIndex = 1,
 		hasLocation = false,
@@ -105,7 +106,12 @@
 			afterResize:function() {},
 			afterRender:function() {}
 		};
+	function resetIndex() {
+		index = previousIndex;
+	}
 	function animateScroll(index,instant,callbacks) {
+		var stop = false;
+
 		if(currentIndex===index) {
 			callbacks = false;
 		}
@@ -115,8 +121,9 @@
 		if(names[index]) {
 			scrollable = false;
 			if(callbacks) {
-				settings.before(index,elements);
+				stop = settings.before(index,elements) === false;
 			}
+
 			interstitialIndex = 1;
 			destination = heights[index];
 			if(firstLoad===false && currentIndex>index) {
@@ -129,6 +136,13 @@
 				}
 			}
 
+			if (stop) {
+				resetIndex();
+				locked = false;
+				return;
+			} else {
+				previousIndex = index;
+			}
 
 			if(settings.sectionName && !(firstLoad===true && index===0)) {
 				if(history.pushState) {
@@ -182,7 +196,6 @@
 					}
 				});
 			}
-
 		}
 	}
 
